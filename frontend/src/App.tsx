@@ -2,8 +2,8 @@ import { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useAuthStore } from '@/store/authStore';
 import { useCycleStore } from '@/store/cycleStore';
-import { getCycles } from '@/api/admin';
 import { Toaster } from 'react-hot-toast';
+import api from '@/lib/axios';
 
 import AppShell from '@/components/layout/AppShell';
 import LoginPage from '@/pages/LoginPage';
@@ -13,15 +13,14 @@ import CheckinHistoryPage from '@/pages/CheckinHistoryPage';
 import TeamOverviewPage from '@/pages/TeamOverviewPage';
 import PendingApprovalsPage from '@/pages/PendingApprovalsPage';
 
-// Placeholder Pages (will implement soon)
-const TeamCheckinsPage = () => <div className="p-4">Team Check-ins Page</div>;
-const TeamReportsPage = () => <div className="p-4">Team Reports Page</div>;
-
-const AdminDashboardPage = () => <div className="p-4">Admin Dashboard Page</div>;
-const CompletionReportPage = () => <div className="p-4">Completion Report Page</div>;
-const CycleManagementPage = () => <div className="p-4">Cycle Management Page</div>;
-const EmployeesPage = () => <div className="p-4">Employees Page</div>;
-const AuditLogsPage = () => <div className="p-4">Audit Logs Page</div>;
+import TeamCheckinsPage from '@/pages/TeamCheckinsPage';
+import TeamReportsPage from '@/pages/TeamReportsPage';
+import AdminDashboardPage from '@/pages/AdminDashboardPage';
+import CompletionReportPage from '@/pages/CompletionReportPage';
+import CycleManagementPage from '@/pages/CycleManagementPage';
+import EmployeesPage from '@/pages/EmployeesPage';
+import AuditLogsPage from '@/pages/AuditLogsPage';
+import AnalyticsDashboardPage from '@/pages/AnalyticsDashboardPage';
 
 const ProtectedRoute = ({ children, allowedRoles }: { children: React.ReactNode; allowedRoles?: string[] }) => {
   const { isAuthenticated, user } = useAuthStore();
@@ -59,11 +58,10 @@ export default function App() {
   useEffect(() => {
     const fetchCycle = async () => {
       try {
-        const { cycles } = await getCycles();
-        const active = cycles.find((c: any) => c.isActive);
-        if (active) setActiveCycle(active);
+        const { data } = await api.get('/cycles/active');
+        if (data.cycle) setActiveCycle(data.cycle);
       } catch (e) {
-        console.error('Failed to fetch cycles', e);
+        console.error('Failed to fetch active cycle', e);
       }
     };
     if (isAuthenticated) fetchCycle();
@@ -100,6 +98,7 @@ export default function App() {
 
           {/* Admin Routes */}
           <Route path="admin/dashboard" element={<ProtectedRoute allowedRoles={['ADMIN']}><AdminDashboardPage /></ProtectedRoute>} />
+          <Route path="admin/analytics" element={<ProtectedRoute allowedRoles={['ADMIN', 'MANAGER']}><AnalyticsDashboardPage /></ProtectedRoute>} />
           <Route path="admin/completion" element={<ProtectedRoute allowedRoles={['ADMIN']}><CompletionReportPage /></ProtectedRoute>} />
           <Route path="admin/cycles" element={<ProtectedRoute allowedRoles={['ADMIN']}><CycleManagementPage /></ProtectedRoute>} />
           <Route path="admin/employees" element={<ProtectedRoute allowedRoles={['ADMIN']}><EmployeesPage /></ProtectedRoute>} />

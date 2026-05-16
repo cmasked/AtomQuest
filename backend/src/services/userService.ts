@@ -2,6 +2,28 @@ import prisma from '../utils/prisma';
 import { Role } from '@prisma/client';
 
 /**
+ * Get all active users with their manager info.
+ */
+export async function getAllUsers() {
+  const users = await prisma.user.findMany({
+    where: { isActive: true },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      role: true,
+      department: true,
+      managerId: true,
+      manager: { select: { name: true } },
+      createdAt: true,
+    },
+    orderBy: { name: 'asc' },
+  });
+
+  return users;
+}
+
+/**
  * Update a user's role and optionally their managerId.
  */
 export async function updateUserRole(

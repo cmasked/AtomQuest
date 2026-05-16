@@ -103,7 +103,7 @@ export async function getTeamGoals(managerId: string) {
   // Find direct reports
   const reports = await prisma.user.findMany({
     where: { managerId },
-    select: { id: true, name: true, email: true, department: true },
+    select: { id: true, name: true, email: true, department: true, role: true },
   });
 
   // Find active cycle
@@ -252,8 +252,8 @@ export async function deleteGoal(goalId: string, userId: string) {
     throw { status: 403, message: 'You can only delete your own goals' };
   }
 
-  if (goal.status !== GoalStatus.DRAFT) {
-    throw { status: 400, message: `Cannot delete a goal with status ${goal.status}. Only DRAFT goals can be deleted.` };
+  if (goal.status !== GoalStatus.DRAFT && goal.status !== GoalStatus.RETURNED) {
+    throw { status: 400, message: `Cannot delete a goal with status ${goal.status}. Only DRAFT or RETURNED goals can be deleted.` };
   }
 
   await prisma.goal.delete({ where: { id: goalId } });

@@ -14,7 +14,8 @@ import {
   UserCircle,
   FileText,
   ShieldAlert,
-  Zap
+  Zap,
+  PieChart as PieChartIcon
 } from 'lucide-react';
 
 export default function Sidebar({ isOpen }: { isOpen: boolean; setIsOpen: (v: boolean) => void }) {
@@ -32,11 +33,13 @@ export default function Sidebar({ isOpen }: { isOpen: boolean; setIsOpen: (v: bo
       { name: 'Pending Approvals', path: '/approvals', icon: CheckSquare },
       { name: 'Team Check-ins', path: '/checkins/team', icon: MessageSquare },
       { name: 'Team Reports', path: '/reports', icon: BarChart },
+      { name: 'Advanced Analytics', path: '/admin/analytics', icon: PieChartIcon },
     ],
     ADMIN: [
       { name: 'Dashboard', path: '/admin/dashboard', icon: LayoutDashboard },
       { name: 'Cycle Management', path: '/admin/cycles', icon: Settings },
       { name: 'All Employees', path: '/admin/employees', icon: UserCircle },
+      { name: 'Advanced Analytics', path: '/admin/analytics', icon: PieChartIcon },
       { name: 'Completion Report', path: '/admin/completion', icon: FileText },
       { name: 'Audit Logs', path: '/admin/audit', icon: ShieldAlert },
     ]

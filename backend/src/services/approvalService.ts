@@ -1,6 +1,7 @@
 import prisma from '../utils/prisma';
-import { GoalStatus, Quarter } from '@prisma/client';
+import { GoalStatus } from '@prisma/client';
 import { validateGoalSheet } from '../utils/goalValidation';
+import * as notificationService from './notificationService';
 
 /**
  * Submit a goal for approval (EMPLOYEE)
@@ -33,7 +34,7 @@ export async function submitGoal(goalId: string, employeeId: string) {
     select: { weightage: true },
   });
 
-  const validation = validateGoalSheet(allGoals.map((g) => ({ weightage: g.weightage })));
+  const validation = validateGoalSheet(allGoals.map((g) => ({ weightage: g.weightage })), true);
   if (!validation.valid) {
     throw { status: 400, message: `Cannot submit: ${validation.error}` };
   }
@@ -42,6 +43,9 @@ export async function submitGoal(goalId: string, employeeId: string) {
     where: { id: goalId },
     data: { status: GoalStatus.SUBMITTED },
   });
+
+  // Send notification to manager (async, non-blocking)
+  notificationService.notifyGoalSubmitted(employeeId, goal.title).catch(console.error);
 
   return updated;
 }
@@ -95,6 +99,9 @@ export async function approveGoal(goalId: string, managerId: string) {
     },
   });
 
+  // Send notification to employee (async, non-blocking)
+  notificationService.notifyGoalApproved(goalId).catch(console.error);
+
   return updated;
 }
 
@@ -135,17 +142,22 @@ export async function returnGoal(
     data: { status: GoalStatus.RETURNED },
   });
 
-  // Save manager note as CheckinComment if provided
+  // Save manager return note as an AuditLog entry (not a CheckinComment, since this
+  // is a goal-setting return note, not a quarterly check-in)
   if (managerNote) {
-    await prisma.checkinComment.create({
+    await prisma.auditLog.create({
       data: {
-        goalId,
-        managerId,
-        quarter: Quarter.Q1, // Default to Q1 during goal setting phase
-        comment: managerNote,
+        entityType: 'ReturnNote',
+        entityId: goalId,
+        changedBy: managerId,
+        oldValue: { status: 'SUBMITTED' },
+        newValue: { status: 'RETURNED', managerNote },
       },
     });
   }
+
+  // Send notification to employee (async, non-blocking)
+  notificationService.notifyGoalReturned(goalId, managerNote).catch(console.error);
 
   return updated;
 }

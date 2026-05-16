@@ -7,11 +7,17 @@ import achievementRoutes from './achievement.routes';
 import checkinRoutes from './checkin.routes';
 import reportRoutes from './report.routes';
 import adminRoutes from './admin.routes';
+import analyticsRoutes from './analytics.routes';
+import { authenticate } from '../middleware/auth';
+import * as cycleController from '../controllers/cycleController';
 
 const router = Router();
 
 // ─── Public / Auth ───────────────────────────────────────────
 router.use('/auth', authRoutes);
+
+// ─── Active cycle (any authenticated user) ───────────────────
+router.get('/cycles/active', authenticate, cycleController.getActiveCycle);
 
 // ─── Goal CRUD + Approval + Achievement ──────────────────────
 router.use('/goals', goalRoutes);
@@ -24,7 +30,11 @@ router.use('/checkins', checkinRoutes);
 // ─── Reports ─────────────────────────────────────────────────
 router.use('/reports', reportRoutes);
 
+// ─── Analytics (Bonus 5.4) ──────────────────────────────────
+router.use('/analytics', analyticsRoutes);
+
 // ─── Admin ───────────────────────────────────────────────────
 router.use('/admin', adminRoutes);
 
 export default router;
+

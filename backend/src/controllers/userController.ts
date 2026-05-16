@@ -2,6 +2,23 @@ import { Request, Response } from 'express';
 import * as userService from '../services/userService';
 
 /**
+ * GET /api/admin/users
+ */
+export async function getAllUsers(req: Request, res: Response): Promise<void> {
+  try {
+    const users = await userService.getAllUsers();
+    res.json({ users });
+  } catch (err: any) {
+    if (err.status) {
+      res.status(err.status).json({ error: err.message });
+      return;
+    }
+    console.error('Get all users error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+}
+
+/**
  * PATCH /api/admin/users/:id/role
  */
 export async function updateUserRole(req: Request, res: Response): Promise<void> {

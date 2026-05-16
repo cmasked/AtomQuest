@@ -64,3 +64,18 @@ export async function updateCycle(req: Request, res: Response): Promise<void> {
     res.status(500).json({ error: 'Internal server error' });
   }
 }
+
+/**
+ * GET /api/cycles/active — Any authenticated user can access
+ */
+export async function getActiveCycle(req: Request, res: Response): Promise<void> {
+  try {
+    const cycles = await cycleService.getAllCycles();
+    const active = cycles.find((c: any) => c.isActive);
+    res.json({ cycle: active || null });
+  } catch (err: any) {
+    console.error('Get active cycle error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+}
+

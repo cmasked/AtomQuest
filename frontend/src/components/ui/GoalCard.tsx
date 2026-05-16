@@ -59,7 +59,7 @@ export function GoalCard({ goal, onEdit, onDelete, showActions = true }: GoalCar
         </CardTitle>
         <div className="flex items-center gap-2 ml-4 shrink-0">
           <StatusBadge status={goal.status} />
-          {showActions && isDraft && (
+          {showActions && (isDraft || isReturned) && (
             <div className="flex items-center gap-1">
               <Button
                 variant="ghost"

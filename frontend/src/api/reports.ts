@@ -13,6 +13,14 @@ export const exportAchievementReport = async (filters: any) => {
   return response.data;
 };
 
+export const exportAchievementReportCSV = async (filters: any) => {
+  const response = await api.get('/reports/achievement/export/csv', {
+    params: filters,
+    responseType: 'blob',
+  });
+  return response.data;
+};
+
 export const getCompletionDashboard = async () => {
   const response = await api.get('/reports/completion-dashboard');
   return response.data;

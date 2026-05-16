@@ -40,3 +40,7 @@ backend/dist/
 # Prisma
 backend/prisma/migrations/*.db
 backend/prisma/*.sqlite
+# temp helper scripts
+replace.py
+replace2.py
+replace3.js

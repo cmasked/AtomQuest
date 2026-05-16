@@ -117,3 +117,53 @@ export async function getAuditLog(req: Request, res: Response): Promise<void> {
     res.status(500).json({ error: 'Internal server error' });
   }
 }
+
+/**
+ * GET /api/reports/achievement/export/csv
+ */
+export async function exportAchievementReportCSV(req: Request, res: Response): Promise<void> {
+  try {
+    const rows = await reportService.getAchievementReport(
+      req.user!.userId,
+      req.user!.role,
+      {
+        cycleId: req.query.cycleId as string | undefined,
+        quarter: req.query.quarter as string | undefined,
+        departmentId: req.query.departmentId as string | undefined,
+      }
+    );
+
+    const headers = [
+      'Employee Name', 'Department', 'Goal Title', 'Thrust Area',
+      'UoM Type', 'Target', 'Weightage', 'Quarter', 'Actual', 'Score (%)', 'Status'
+    ];
+
+    const escapeCSV = (val: any) => {
+      const str = String(val ?? '');
+      if (str.includes(',') || str.includes('"') || str.includes('\n')) {
+        return `"${str.replace(/"/g, '""')}"`;
+      }
+      return str;
+    };
+
+    const csvRows = rows.map((r: any) => [
+      r.employeeName, r.department, r.goalTitle, r.thrustArea,
+      r.uomType, r.targetValue ?? '', r.weightage, r.quarter ?? '',
+      r.actualValue ?? '', r.computedScore ?? '', r.progressStatus ?? ''
+    ].map(escapeCSV).join(','));
+
+    const csv = [headers.join(','), ...csvRows].join('\n');
+
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', 'attachment; filename="achievement_report.csv"');
+    res.send(csv);
+  } catch (err: any) {
+    if (err.status) {
+      res.status(err.status).json({ error: err.message });
+      return;
+    }
+    console.error('Export CSV report error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+}
+

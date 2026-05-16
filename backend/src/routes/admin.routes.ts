@@ -5,6 +5,8 @@ import * as cycleController from '../controllers/cycleController';
 import * as sharedGoalController from '../controllers/sharedGoalController';
 import * as checkinController from '../controllers/checkinController';
 import * as userController from '../controllers/userController';
+import * as escalationController from '../controllers/escalationController';
+import * as ssoController from '../controllers/ssoController';
 
 const router = Router();
 
@@ -36,7 +38,23 @@ router.patch('/cycles/:id', cycleController.updateCycle);
 router.get('/checkins/completion', checkinController.getCheckinCompletion);
 
 // ─── User Management ─────────────────────────────────────────
+// GET /api/admin/users — List all users
+router.get('/users', userController.getAllUsers);
+
 // PATCH /api/admin/users/:id/role
 router.patch('/users/:id/role', userController.updateUserRole);
 
+// ─── Escalation Module ──────────────────────────────────────
+router.post('/escalation/rules', escalationController.createRule);
+router.get('/escalation/rules', escalationController.getRules);
+router.patch('/escalation/rules/:id', escalationController.updateRule);
+router.delete('/escalation/rules/:id', escalationController.deleteRule);
+router.get('/escalation/logs', escalationController.getLogs);
+router.post('/escalation/logs/:id/resolve', escalationController.resolveLog);
+router.post('/escalation/run', escalationController.runCheck);
+
+// ─── SSO / Azure AD Sync ────────────────────────────────────
+router.post('/sso/sync', ssoController.syncHierarchy);
+
 export default router;
+

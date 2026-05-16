@@ -13,7 +13,7 @@ export interface ValidationResult {
  * 2. No single goal can have weightage below 10
  * 3. Total number of goals cannot exceed 8
  */
-export function validateGoalSheet(goals: GoalWeightageInput[]): ValidationResult {
+export function validateGoalSheet(goals: GoalWeightageInput[], isSubmit: boolean = false): ValidationResult {
   // Rule 3: Total number of goals cannot exceed 8
   if (goals.length > 8) {
     return {
@@ -32,13 +32,23 @@ export function validateGoalSheet(goals: GoalWeightageInput[]): ValidationResult
     }
   }
 
-  // Rule 1: Total weightage must equal exactly 100 (±0.01 tolerance)
+  // Rule 1: Total weightage checks
   const totalWeightage = goals.reduce((sum, g) => sum + g.weightage, 0);
-  if (Math.abs(totalWeightage - 100) > 0.01) {
-    return {
-      valid: false,
-      error: `Total weightage is ${totalWeightage}%. It must equal exactly 100%.`,
-    };
+  
+  if (isSubmit) {
+    if (Math.abs(totalWeightage - 100) > 0.01) {
+      return {
+        valid: false,
+        error: `Total weightage is ${totalWeightage}%. It must equal exactly 100%.`,
+      };
+    }
+  } else {
+    if (totalWeightage > 100.01) {
+      return {
+        valid: false,
+        error: `Total weightage is ${totalWeightage}%. It cannot exceed 100%.`,
+      };
+    }
   }
 
   return { valid: true };

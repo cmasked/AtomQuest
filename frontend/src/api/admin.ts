@@ -25,6 +25,11 @@ export const getCheckinCompletion = async (quarter: string) => {
   return response.data;
 };
 
+export const getAllUsers = async () => {
+  const response = await api.get('/admin/users');
+  return response.data;
+};
+
 export const updateUserRole = async (id: string, data: any) => {
   const response = await api.patch(`/admin/users/${id}/role`, data);
   return response.data;

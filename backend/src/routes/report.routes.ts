@@ -12,6 +12,9 @@ router.get('/achievement', authorize('MANAGER', 'ADMIN'), reportController.getAc
 // GET /api/reports/achievement/export — XLSX download
 router.get('/achievement/export', authorize('MANAGER', 'ADMIN'), reportController.exportAchievementReport);
 
+// GET /api/reports/achievement/export/csv — CSV download
+router.get('/achievement/export/csv', authorize('MANAGER', 'ADMIN'), reportController.exportAchievementReportCSV);
+
 // GET /api/reports/completion-dashboard — ADMIN only
 router.get('/completion-dashboard', authorize('ADMIN'), reportController.getCompletionDashboard);
 
