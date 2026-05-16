@@ -7,7 +7,9 @@ import { GoalCard } from '@/components/ui/GoalCard';
 import type { Goal } from '@/components/ui/GoalCard';
 import { WeightageBar } from '@/components/ui/WeightageBar';
 import { Button } from '@/components/ui/button';
-import { Clock, Loader2, Plus, SendHorizontal, Target } from 'lucide-react';
+import { Clock, Loader2, Plus, SendHorizontal, Target, CheckCircle2, Send } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { cn } from '@/lib/utils';
 import { GoalDrawer } from './components/GoalDrawer';
 import toast from 'react-hot-toast';
 import { Card } from '@/components/ui/card';
@@ -125,70 +127,111 @@ export default function MyGoalsPage() {
       <PageHeader 
         title={`My Goals — ${activeCycle?.name || 'Loading...'}`} 
         subtitle={
-          <div className="flex items-center gap-2">
-            <span>{activeCycle?.phase.replaceAll('_', ' ')} Phase</span>
-            {activeCycle && (
-              <span className="text-slate-400">
-                ({formatDate(activeCycle.opensAt)} – {formatDate(activeCycle.closesAt)})
-              </span>
-            )}
+          <div className="flex items-center gap-2 mt-1 flex-wrap">
+            <Badge className="bg-brand-orange/10 text-brand-orange border-none text-xs font-medium px-2 py-0.5">
+              {activeCycle?.phase.replaceAll('_', ' ')}
+            </Badge>
+            <span className="text-slate-400 text-sm">
+              {formatDate(activeCycle?.opensAt)} 
+              {' — '} 
+              {formatDate(activeCycle?.closesAt)}
+            </span>
           </div>
         }
       />
 
       {isGoalSettingOpen && daysRemaining !== null && (
-        <div className={`p-3 text-sm font-medium rounded-lg border flex items-center justify-center gap-2 ${
-          daysRemaining <= 3 ? 'bg-red-50 text-red-700 border-red-200' : 
-          daysRemaining <= 14 ? 'bg-amber-50 text-amber-700 border-amber-200' : 
-          'bg-blue-50 text-blue-700 border-blue-200'
-        }`}>
-          <Clock className="w-4 h-4" />
-          Goal Setting window closes in {daysRemaining} days — {formatDate(activeCycle!.closesAt)}
+        <div className={cn(
+          "flex items-center justify-center gap-2.5 px-5 py-3.5 rounded-xl text-sm font-medium border",
+          daysRemaining <= 3
+            ? "bg-red-50 border-red-200 text-red-700 dark:bg-red-950/60 dark:border-red-800/50 dark:text-red-300"
+            : daysRemaining <= 14
+            ? "bg-amber-50 border-amber-200 text-amber-700 dark:bg-amber-950/60 dark:border-amber-800/50 dark:text-amber-300"
+            : "bg-blue-50 border-blue-200 text-blue-700 dark:bg-blue-950/40 dark:border-blue-800/50 dark:text-blue-300"
+        )}>
+          <Clock className="w-4 h-4 shrink-0" />
+          <span>
+            Goal Setting window closes in{" "}
+            <strong className="font-bold">{daysRemaining} days</strong>
+            {" — "}
+            <span className="font-medium">
+              {formatDate(activeCycle!.closesAt)}
+            </span>
+          </span>
         </div>
       )}
 
       {/* Persistent Tracker Header Card */}
-      <Card className="p-5 sticky top-4 z-10 shadow-sm border-slate-200">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div className="flex-1 flex items-center gap-6">
-            <div className="shrink-0 w-32 font-medium text-brand-navy">
-              Weightage: {totalWeightage}%
+      <div className="rounded-xl border border-slate-200 bg-white shadow-sm p-5 sticky top-4 z-10 dark:bg-slate-900 dark:border-slate-700">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div className="flex-1 space-y-2">
+            <div className="flex items-center justify-between text-sm">
+              <div className="flex items-center gap-2">
+                <span className="font-semibold text-slate-700 dark:text-slate-300">Weightage</span>
+                <span className={cn(
+                  "text-lg font-bold",
+                  totalWeightage === 100 ? "text-green-600 dark:text-green-500" :
+                  totalWeightage > 100 ? "text-red-600 dark:text-red-500" : "text-blue-600 dark:text-blue-500"
+                )}>
+                  {totalWeightage}%
+                </span>
+                <span className="text-slate-400 text-xs dark:text-slate-600">/ 100%</span>
+              </div>
+              <span className="text-slate-500 text-xs dark:text-slate-500">{goals.length} of 8 goals</span>
             </div>
-            <div className="flex-1 max-w-md">
-              <WeightageBar used={totalWeightage} total={100} />
+            
+            <div className="h-2.5 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+              <div
+                className={cn(
+                  "h-full rounded-full transition-all duration-700",
+                  totalWeightage === 100 ? "bg-green-500" :
+                  totalWeightage > 100 ? "bg-red-500" :
+                  totalWeightage >= 90 ? "bg-amber-500" : "bg-blue-500"
+                )}
+                style={{ width: `${Math.min((totalWeightage/100)*100, 100)}%` }}
+              />
             </div>
-            <div className="shrink-0 text-sm text-slate-500 font-medium">
-              {goals.length} of 8 goals
-            </div>
+            
+            {totalWeightage === 100 ? (
+              <div className="flex items-center gap-1.5 text-green-600 dark:text-green-500 text-xs font-medium">
+                <CheckCircle2 className="w-3.5 h-3.5" />
+                Weightage complete — ready to submit
+              </div>
+            ) : (
+              <p className="text-xs text-slate-400 dark:text-slate-600">{100 - totalWeightage}% remaining</p>
+            )}
           </div>
           
           <div className="flex items-center gap-3 shrink-0">
             {isGoalSettingOpen && (
-              <Button 
+              <Button
+                variant="outline"
                 onClick={openAddDrawer}
                 disabled={totalWeightage >= 100 || goals.length >= 8}
-                variant="outline"
-                className="border-brand-orange text-brand-orange hover:bg-brand-orange/10"
+                className="border-slate-300 text-slate-700 hover:border-brand-orange hover:text-brand-orange gap-1.5 dark:border-slate-700 dark:text-slate-300 dark:hover:border-brand-orange dark:hover:text-brand-orange"
               >
-                <Plus className="w-4 h-4 mr-2" /> Add Goal
+                <Plus className="w-4 h-4" /> Add Goal
               </Button>
             )}
             
             {hasDraftsOrReturned && (
-              <div title={!canSubmit ? "Total weightage must equal 100% to submit" : ""}>
-                <Button 
-                  onClick={handleSubmitAll}
-                  disabled={!canSubmit || isSubmitting}
-                  className={canSubmit ? "bg-brand-orange hover:bg-brand-orange/90 text-white animate-pulse" : "bg-slate-200 text-slate-500"}
-                >
-                  {isSubmitting ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <SendHorizontal className="w-4 h-4 mr-2" />}
-                  Submit All Goals
-                </Button>
-              </div>
+              <Button
+                onClick={handleSubmitAll}
+                disabled={totalWeightage !== 100 || goals.length === 0 || isSubmitting}
+                className={cn(
+                  "gap-1.5 font-semibold",
+                  totalWeightage === 100 && goals.length > 0 && !isSubmitting
+                    ? "bg-brand-orange hover:bg-orange-600 text-white shadow-md shadow-orange-200 dark:shadow-none"
+                    : "bg-slate-100 text-slate-400 cursor-not-allowed dark:bg-slate-800 dark:text-slate-600"
+                )}
+              >
+                {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+                Submit All
+              </Button>
             )}
           </div>
         </div>
-      </Card>
+      </div>
 
       {/* Goal Cards List */}
       {goals.length > 0 ? (

@@ -63,11 +63,15 @@ export default function Navbar() {
   };
 
   const toggleTheme = () => {
+    document.documentElement.classList.add('no-transition');
     setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'));
+    requestAnimationFrame(() => {
+      document.documentElement.classList.remove('no-transition');
+    });
   };
 
   return (
-    <header className="h-16 flex items-center justify-between px-6 bg-surface border-b border-border z-10 shrink-0">
+    <header className="h-16 flex items-center justify-between px-6 bg-white border-b border-slate-200 shadow-sm z-10 shrink-0 dark:bg-slate-900 dark:border-slate-800 dark:shadow-none">
       <div className="flex items-center gap-4">
         {/* Mobile Logo */}
         <div className="md:hidden font-bold text-lg text-brand-navy flex items-center gap-2">
@@ -78,14 +82,16 @@ export default function Navbar() {
 
       <div className="flex items-center justify-center flex-1">
         {activeCycle && (
-          <Badge variant="secondary" className="bg-slate-100 text-slate-700 font-medium px-3 py-1">
-            {activeCycle.name} &middot; <span className="text-brand-orange ml-1">{activeCycle.phase.replaceAll('_', ' ')}</span>
+          <Badge className="bg-slate-100 text-slate-600 border border-slate-200 font-medium px-3 py-1 text-xs dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700">
+            {activeCycle.name}
+            <span className="mx-1.5 opacity-40">·</span>
+            <span className="text-brand-orange font-semibold">{activeCycle.phase.replaceAll('_', ' ')}</span>
           </Badge>
         )}
       </div>
 
       <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" className="text-text-secondary relative" aria-label="Notifications">
+        <Button variant="ghost" size="icon" className="text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white dark:hover:bg-slate-800 relative" aria-label="Notifications">
           <Bell className="w-5 h-5" />
           <span className="absolute top-2 right-2 w-2 h-2 bg-brand-orange rounded-full"></span>
         </Button>
@@ -93,7 +99,7 @@ export default function Navbar() {
         <Button
           variant="ghost"
           size="icon"
-          className="text-text-secondary"
+          className="text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white dark:hover:bg-slate-800"
           aria-label="Toggle dark mode"
           onClick={toggleTheme}
         >
@@ -103,8 +109,10 @@ export default function Navbar() {
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="relative h-8 w-8 rounded-full" aria-label="User menu">
-              <Avatar className="h-8 w-8 bg-brand-navy text-white">
-                <AvatarFallback>{user?.name?.charAt(0) || 'U'}</AvatarFallback>
+              <Avatar className="h-8 w-8">
+                <AvatarFallback className="bg-slate-800 text-white font-semibold text-sm dark:bg-brand-orange">
+                  {user?.name?.charAt(0) || 'U'}
+                </AvatarFallback>
               </Avatar>
             </Button>
           </DropdownMenuTrigger>

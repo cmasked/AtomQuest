@@ -48,12 +48,17 @@ export function GoalCard({ goal, onEdit, onDelete, showActions = true }: GoalCar
 
   return (
     <Card className={cn(
-      "transition-all duration-200",
-      isReturned ? "border-red-300 shadow-sm" : "hover:shadow-md",
-      isSubmitted ? "border-l-4 border-l-amber-400" : ""
+      "transition-all duration-200 bg-white",
+      "border border-slate-200 shadow-sm hover:shadow-md",
+      "hover:-translate-y-0.5",
+      isReturned  ? "border-l-[3px] border-l-red-500" : "",
+      isSubmitted ? "border-l-[3px] border-l-amber-500" : "",
+      isApproved  ? "border-l-[3px] border-l-green-500" : "",
+      isDraft     ? "border-l-[3px] border-l-slate-300" : "",
+      "dark:bg-slate-900 dark:border-slate-700 dark:hover:border-slate-600"
     )}>
       <CardHeader className="flex flex-row items-start justify-between pb-2 space-y-0">
-        <CardTitle className="text-lg font-semibold text-brand-navy flex items-center gap-2">
+        <CardTitle className="text-base font-semibold text-slate-900 dark:text-white flex items-center gap-2">
           {isApproved && <Lock className="w-4 h-4 text-green-600 shrink-0" />}
           <span className="line-clamp-2">{goal.title}</span>
         </CardTitle>
@@ -96,28 +101,28 @@ export function GoalCard({ goal, onEdit, onDelete, showActions = true }: GoalCar
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4 text-sm">
           <div>
-            <span className="block text-slate-500 text-xs mb-1">Thrust Area</span>
+            <span className="block text-[10px] font-semibold uppercase tracking-widest text-slate-400 mb-1 dark:text-slate-600">Thrust Area</span>
             <Badge variant="secondary" className="font-normal">{goal.thrustArea}</Badge>
           </div>
           <div>
-            <span className="block text-slate-500 text-xs mb-1">Type</span>
-            <Badge variant="outline" className="font-normal text-slate-600">{uomLabel()}</Badge>
+            <span className="block text-[10px] font-semibold uppercase tracking-widest text-slate-400 mb-1 dark:text-slate-600">Type</span>
+            <Badge variant="outline" className="font-normal text-slate-600 dark:text-slate-300">{uomLabel()}</Badge>
           </div>
           <div>
-            <span className="block text-slate-500 text-xs mb-1">Target</span>
-            <span className="font-medium text-slate-800">
+            <span className="block text-[10px] font-semibold uppercase tracking-widest text-slate-400 mb-1 dark:text-slate-600">Target</span>
+            <span className="font-semibold text-slate-800 text-sm dark:text-slate-200">
               {goal.uomType === 'TIMELINE' && goal.targetDate ? formatDate(goal.targetDate) : (goal.targetValue ?? '—')}
             </span>
           </div>
           <div>
-            <span className="block text-slate-500 text-xs mb-1">Weightage</span>
-            <span className="font-semibold text-brand-navy">{goal.weightage}%</span>
+            <span className="block text-[10px] font-semibold uppercase tracking-widest text-slate-400 mb-1 dark:text-slate-600">Weightage</span>
+            <span className="font-bold text-brand-orange text-sm dark:text-brand-orange">{goal.weightage}%</span>
           </div>
         </div>
 
         {goal.description && (
-          <div className="mt-4 pt-4 border-t border-slate-100">
-            <p className="text-sm text-slate-600 whitespace-pre-wrap">{goal.description}</p>
+          <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800">
+            <p className="text-sm text-slate-600 whitespace-pre-wrap dark:text-slate-400">{goal.description}</p>
           </div>
         )}
       </CardContent>

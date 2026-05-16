@@ -19,7 +19,7 @@ export default function AppShell() {
       <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
         <Navbar />
         
-        <main className="flex-1 overflow-auto p-6">
+        <main className="flex-1 overflow-auto p-6 bg-slate-50 dark:bg-[#0A0F1E]">
           <div className="max-w-7xl mx-auto h-full">
             <Outlet />
           </div>

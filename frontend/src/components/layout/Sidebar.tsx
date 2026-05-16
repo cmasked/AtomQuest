@@ -49,7 +49,8 @@ export default function Sidebar({ isOpen }: { isOpen: boolean; setIsOpen: (v: bo
 
   return (
     <aside className={cn(
-      "bg-brand-navy text-slate-300 transition-all duration-300 flex flex-col h-full shrink-0",
+      "flex flex-col h-full shrink-0 transition-all duration-300",
+      "bg-brand-navy dark:bg-slate-900 border-r border-slate-800",
       isOpen ? "w-64" : "w-20 hidden md:flex"
     )}>
       {/* Logo Area */}
@@ -69,18 +70,22 @@ export default function Sidebar({ isOpen }: { isOpen: boolean; setIsOpen: (v: bo
             key={item.path}
             to={item.path}
             className={({ isActive }) => cn(
-              "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors group",
+              "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-150 group",
               isActive 
-                ? "bg-brand-orange/10 text-brand-orange font-medium" 
-                : "hover:bg-slate-800 hover:text-white"
+                ? "bg-brand-orange/10 text-brand-orange font-medium border-l-2 border-brand-orange" 
+                : "text-slate-400 hover:text-white hover:bg-white/5"
             )}
             title={!isOpen ? item.name : undefined}
           >
-            <item.icon className={cn(
-              "w-5 h-5 shrink-0",
-              // We'll let the active state cascade color or set it here if needed
-            )} />
-            {isOpen && <span className="truncate">{item.name}</span>}
+            {({ isActive }) => (
+              <>
+                <item.icon className={cn(
+                  "w-5 h-5 shrink-0",
+                  isActive ? "text-brand-orange" : "text-slate-500"
+                )} />
+                {isOpen && <span className="text-sm truncate">{item.name}</span>}
+              </>
+            )}
           </NavLink>
         ))}
       </nav>
@@ -88,7 +93,7 @@ export default function Sidebar({ isOpen }: { isOpen: boolean; setIsOpen: (v: bo
       {/* User Area Bottom */}
       <div className="p-4 border-t border-slate-800">
         <div className={cn("flex items-center gap-3", !isOpen && "justify-center")}>
-          <div className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center shrink-0 border border-slate-700">
+          <div className="w-10 h-10 rounded-full bg-brand-orange/20 flex items-center justify-center shrink-0 border border-brand-orange/30">
             {user?.name?.charAt(0) || 'U'}
           </div>
           {isOpen && (

@@ -17,21 +17,23 @@ export function EmptyState({ icon: Icon, title, description, actionLabel, onActi
   const DisplayIcon = Icon ?? Inbox;
 
   return (
-    <div className={cn("flex flex-col items-center justify-center text-center p-8 md:p-16 border border-dashed border-slate-200 rounded-xl bg-slate-50/50", className)}>
-      <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center shadow-sm mb-6 border border-slate-100">
-        <DisplayIcon className="w-8 h-8 text-slate-400" />
+    <div className={cn("flex flex-col items-center justify-center py-20 text-center", className)}>
+      <div className="w-16 h-16 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center mb-5">
+        <DisplayIcon className="w-8 h-8 text-slate-400 dark:text-slate-600" />
       </div>
-      
-      <h3 className="text-lg font-semibold text-brand-navy mb-2">{title}</h3>
-      
+      <h3 className="text-lg font-semibold text-slate-800 dark:text-white mb-2">
+        {title}
+      </h3>
       {description && (
-        <div className="text-sm text-slate-500 max-w-md mx-auto mb-6">
+        <p className="text-sm text-slate-500 dark:text-slate-400 max-w-sm leading-relaxed mx-auto">
           {description}
-        </div>
+        </p>
       )}
-      
       {actionLabel && onAction && (
-        <Button onClick={onAction} className="bg-brand-orange hover:bg-brand-orange/90 text-white">
+        <Button
+          onClick={onAction}
+          className="mt-6 bg-brand-orange hover:bg-orange-600 text-white gap-2"
+        >
           {actionLabel}
         </Button>
       )}
