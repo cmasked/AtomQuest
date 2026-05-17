@@ -1,16 +1,13 @@
 import { useEffect, useMemo, useState } from 'react';
 import { approveGoal, getTeamGoals, returnGoal } from '@/api/goals';
 import { PageHeader } from '@/components/shared/PageHeader';
-import { EmptyState } from '@/components/shared/EmptyState';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Label } from '@/components/ui/label';
 import { CheckCircle2, Loader2, RotateCcw } from 'lucide-react';
 import { format, formatDistanceToNow } from 'date-fns';
 import toast from 'react-hot-toast';
+import { cn } from '@/lib/utils';
 
 interface PendingGoal {
   id: string;
@@ -147,96 +144,88 @@ export default function PendingApprovalsPage() {
             return (
               <Card
                 key={goal.id}
-                className={`p-5 border-l-4 border-l-amber-400 shadow-sm transition-all duration-300 ${
+                className={cn(
+                  "bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-sm border-l-4 border-l-amber-400 transition-all duration-300",
                   isRemoving ? 'opacity-0 translate-y-1' : 'opacity-100'
-                }`}
+                )}
               >
-                <div className="flex flex-col gap-4">
-                  <div className="flex flex-col md:flex-row md:items-start justify-between gap-6">
-                    <div className="flex-1 space-y-4">
-                      <div className="flex items-start justify-between gap-4">
-                        <div className="flex items-center gap-3">
-                          <Avatar className="h-10 w-10 border border-slate-200 bg-slate-100">
-                            <AvatarFallback className="text-slate-600">
-                              {initials}
-                            </AvatarFallback>
-                          </Avatar>
-                          <div>
-                            <div className="text-sm font-medium text-slate-600">{goal.employeeName}</div>
-                            <h3 className="text-lg font-semibold text-brand-navy">{goal.title}</h3>
-                          </div>
-                        </div>
-                        <div className="text-xs text-slate-500">{getSubmittedText(goal)}</div>
+                <div className="p-6">
+                  {/* Employee row */}
+                  <div className="flex items-start justify-between mb-5">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-brand-orange/10 border-2 border-brand-orange/20 flex items-center justify-center">
+                        <span className="text-sm font-bold text-brand-orange">
+                          {initials.charAt(0)}
+                        </span>
                       </div>
-
-                      <div className="flex flex-wrap gap-2 text-sm">
-                        <Badge variant="secondary" className="bg-slate-100 font-normal">
-                          Thrust: {goal.thrustArea}
-                        </Badge>
-                        <Badge variant="outline" className="font-normal text-slate-600">
-                          UoM: {goal.uomType.replace('_', ' ')}
-                        </Badge>
-                        <Badge variant="outline" className="font-normal text-slate-600">
-                          Weight: {goal.weightage}%
-                        </Badge>
-                        <Badge variant="outline" className="font-normal text-slate-600 border-dashed">
-                          Target: {goal.uomType === 'TIMELINE' ? (goal.targetDate ? formatDate(goal.targetDate) : 'N/A') : (goal.targetValue ?? 'N/A')}
-                        </Badge>
-                      </div>
-
-                      {goal.description && (
-                        <div className="bg-slate-50 p-3 rounded-md text-sm text-slate-600">
-                          {goal.description}
+                      <div>
+                        <div className="text-xs font-semibold uppercase tracking-wide text-slate-400 dark:text-slate-600">
+                          {goal.employeeName}
                         </div>
-                      )}
+                        <h3 className="text-base font-semibold text-slate-900 dark:text-white">
+                          {goal.title}
+                        </h3>
+                      </div>
                     </div>
-
-                    <div className="flex flex-row md:flex-col gap-3 shrink-0">
-                      <Button
-                        onClick={() => handleApprove(goal.id)}
-                        disabled={isProcessing === goal.id}
-                        className="bg-green-600 hover:bg-green-700 text-white min-w-[140px]"
-                      >
-                        {isProcessing === goal.id ? (
-                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                        ) : (
-                          <CheckCircle2 className="w-4 h-4 mr-2" />
-                        )}
-                        Approve
-                      </Button>
-                      <Button
-                        onClick={() => setReturningGoalId(showReturnForm ? null : goal.id)}
-                        disabled={isProcessing === goal.id}
-                        variant="outline"
-                        className="border-red-200 text-red-600 hover:bg-red-50 min-w-[140px]"
-                      >
-                        <RotateCcw className="w-4 h-4 mr-2" />
-                        Return
-                      </Button>
-                    </div>
+                    <span className="text-xs text-slate-400">{getSubmittedText(goal)}</span>
                   </div>
-
+                  
+                  {/* Metadata chips */}
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    <span className="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-xs font-medium text-slate-700 dark:text-slate-300">
+                      {goal.thrustArea}
+                    </span>
+                    <span className="px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-700 text-xs font-medium text-slate-600 dark:text-slate-400">
+                      {goal.uomType.replace('_', ' ')}
+                    </span>
+                    <span className="px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-700 text-xs font-medium text-slate-600 dark:text-slate-400">
+                      {goal.weightage}% weight
+                    </span>
+                    <span className="px-2.5 py-1 rounded-lg border border-dashed border-slate-200 dark:border-slate-700 text-xs font-medium text-slate-500 dark:text-slate-500">
+                      Target: {goal.uomType === 'TIMELINE' ? (goal.targetDate ? formatDate(goal.targetDate) : 'N/A') : (goal.targetValue ?? 'N/A')}
+                    </span>
+                  </div>
+                  
+                  {goal.description && (
+                    <div className="mb-4 p-3.5 rounded-lg bg-slate-50 dark:bg-slate-800/50 text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+                      {goal.description}
+                    </div>
+                  )}
+                  
+                  {/* Action buttons */}
+                  <div className="flex gap-3">
+                    <Button onClick={() => handleApprove(goal.id)}
+                      disabled={isProcessing === goal.id}
+                      className="flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold gap-2">
+                      {isProcessing === goal.id 
+                        ? <Loader2 className="w-4 h-4 animate-spin" />
+                        : <CheckCircle2 className="w-4 h-4" />}
+                      Approve
+                    </Button>
+                    <Button onClick={() => setReturningGoalId(showReturnForm ? null : goal.id)}
+                      variant="outline"
+                      className="flex-1 border-red-200 dark:border-red-800/50 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 gap-2">
+                      <RotateCcw className="w-4 h-4" />
+                      Return
+                    </Button>
+                  </div>
+                  
+                  {/* Return form */}
                   {showReturnForm && (
-                    <div className="mt-2 border-t border-slate-100 pt-4">
-                      <Label htmlFor={`return-note-${goal.id}`}>Reason for returning (optional)</Label>
-                      <Textarea
-                        id={`return-note-${goal.id}`}
-                        placeholder="Provide feedback for the employee"
+                    <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800">
+                      <label className="text-xs font-semibold uppercase tracking-widest text-slate-400 mb-2 block">
+                        Reason for returning
+                      </label>
+                      <Textarea placeholder="Give the employee clear feedback..."
                         value={returnNotes[goal.id] || ''}
-                        onChange={(e) =>
-                          setReturnNotes((prev) => ({ ...prev, [goal.id]: e.target.value }))
-                        }
-                        className="min-h-[90px] mt-2"
-                      />
-                      <div className="flex items-center gap-2 mt-3">
-                        <Button variant="ghost" onClick={() => setReturningGoalId(null)}>
+                        onChange={(e) => setReturnNotes((prev) => ({ ...prev, [goal.id]: e.target.value }))}
+                        className="min-h-[80px] bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 resize-none" />
+                      <div className="flex gap-2 mt-3">
+                        <Button variant="ghost" size="sm" onClick={() => setReturningGoalId(null)}>
                           Cancel
                         </Button>
-                        <Button
-                          onClick={() => handleReturn(goal.id)}
-                          className="bg-red-600 hover:bg-red-700 text-white"
-                          disabled={isProcessing !== null}
-                        >
+                        <Button size="sm" onClick={() => handleReturn(goal.id)}
+                          className="bg-red-600 hover:bg-red-700 text-white">
                           {isProcessing === goal.id ? 'Processing...' : 'Confirm Return'}
                         </Button>
                       </div>
@@ -248,11 +237,17 @@ export default function PendingApprovalsPage() {
           })}
         </div>
       ) : (
-        <EmptyState
-          icon={CheckCircle2}
-          title="All caught up"
-          description="No goals are waiting for your approval right now."
-        />
+        <div className="flex flex-col items-center justify-center py-24 text-center">
+          <div className="w-16 h-16 rounded-2xl bg-green-100 dark:bg-green-900/30 flex items-center justify-center mb-5">
+            <CheckCircle2 className="w-8 h-8 text-green-500" />
+          </div>
+          <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">
+            All caught up!
+          </h3>
+          <p className="text-sm text-slate-400 max-w-xs">
+            No goals are waiting for your review right now.
+          </p>
+        </div>
       )}
     </div>
   );

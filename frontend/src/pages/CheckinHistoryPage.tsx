@@ -2,11 +2,9 @@ import { useEffect, useState } from 'react';
 import { getGoalCheckins } from '@/api/checkins';
 import { getMyGoals } from '@/api/goals';
 import { PageHeader } from '@/components/shared/PageHeader';
-import { EmptyState } from '@/components/shared/EmptyState';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Card } from '@/components/ui/card';
-import { Calendar, Loader2, MessageSquare } from 'lucide-react';
+import { cn } from '@/lib/utils';
 import toast from 'react-hot-toast';
+import { Loader2, MessageSquare } from 'lucide-react';
 import { format } from 'date-fns';
 
 export default function CheckinHistoryPage() {
@@ -60,72 +58,93 @@ export default function CheckinHistoryPage() {
   }
 
   const quarterHistory = history.filter(h => h.quarter === selectedQuarter);
-  const formatDate = (value?: string | Date | null) => {
-    if (!value) return '';
-    return format(new Date(value), 'dd MMM yyyy');
-  };
+
 
   return (
     <div className="space-y-6">
       <PageHeader title="Check-in History" />
 
-      <Tabs value={selectedQuarter} onValueChange={setSelectedQuarter} className="w-full">
-        <TabsList className="mb-6 bg-slate-100 rounded-lg p-1">
-          {['Q1', 'Q2', 'Q3', 'Q4'].map(q => (
-            <TabsTrigger 
-              key={q} 
-              value={q}
-              className="rounded-md px-6 data-[state=active]:bg-white data-[state=active]:text-brand-orange data-[state=active]:shadow-sm"
-            >
-              {q}
-            </TabsTrigger>
-          ))}
-        </TabsList>
+      <div className="flex border-b border-slate-200 dark:border-slate-800 mb-6">
+        {['Q1', 'Q2', 'Q3', 'Q4'].map(q => (
+          <button
+            key={q}
+            onClick={() => setSelectedQuarter(q)}
+            className={cn(
+              "px-5 py-3 text-sm font-medium border-b-2 -mb-px transition-colors",
+              selectedQuarter === q
+                ? "border-brand-orange text-brand-orange"
+                : "border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700"
+            )}
+          >
+            {q}
+          </button>
+        ))}
+      </div>
 
-        <TabsContent value={selectedQuarter} className="space-y-6">
-          {quarterHistory.length > 0 ? (
-            <div className="relative border-l-2 border-slate-200 ml-4 pl-6 space-y-8 py-4">
-              {quarterHistory.map((item) => (
+      <div className="space-y-6">
+        {quarterHistory.length > 0 ? (
+          <div className="relative">
+            {/* Vertical line */}
+            <div className="absolute left-4 top-0 bottom-0 w-px bg-slate-200 dark:bg-slate-800" />
+            
+            <div className="space-y-6 pl-12">
+              {quarterHistory.map(item => (
                 <div key={item.id} className="relative">
                   {/* Timeline dot */}
-                  <div className="absolute -left-[31px] top-1 w-4 h-4 rounded-full bg-brand-orange border-4 border-white shadow-sm" />
+                  <div className="absolute -left-8 top-2 w-3.5 h-3.5 rounded-full bg-brand-orange border-2 border-white dark:border-slate-950 shadow-sm shadow-orange-200" />
                   
-                  <div className="mb-2 flex items-center gap-2 text-sm text-slate-500">
-                    <span className="font-semibold text-slate-700">{item.quarter}</span>
-                    <span>•</span>
-                    <Calendar className="w-4 h-4" />
-                    <span>{formatDate(item.createdAt)}</span>
+                  {/* Quarter + Date */}
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="inline-flex px-2 py-0.5 rounded-md bg-brand-orange/10 text-brand-orange text-xs font-bold">
+                      {item.quarter}
+                    </span>
+                    <span className="text-xs text-slate-400 dark:text-slate-600">
+                      {format(new Date(item.createdAt), 'd MMM yyyy')}
+                    </span>
                   </div>
                   
-                  <h4 className="font-medium text-brand-navy mb-3">{item.goalTitle}</h4>
+                  {/* Goal title */}
+                  <h4 className="font-semibold text-slate-900 dark:text-white text-sm mb-2">
+                    {item.goalTitle}
+                  </h4>
                   
-                  <Card className="p-4 bg-slate-50/80 border border-slate-100 shadow-sm">
+                  {/* Comment card */}
+                  <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-4 shadow-sm">
                     <div className="flex gap-3">
-                      <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 shrink-0">
-                        <MessageSquare className="w-4 h-4" />
+                      {/* Manager avatar */}
+                      <div className="w-8 h-8 rounded-full bg-brand-orange/10 border border-brand-orange/20 flex items-center justify-center shrink-0">
+                        <span className="text-xs font-bold text-brand-orange">
+                          {item.managerName?.charAt(0) || 'M'}
+                        </span>
                       </div>
                       <div>
-                        <div className="text-sm font-medium text-slate-900 mb-1">
-                          {item.managerName || 'Your Manager'} commented:
+                        <div className="text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                          {item.managerName || 'Your Manager'}
                         </div>
-                        <div className="text-sm text-slate-600 leading-relaxed whitespace-pre-wrap">
+                        <div className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
                           {item.comment}
                         </div>
                       </div>
                     </div>
-                  </Card>
+                  </div>
                 </div>
               ))}
             </div>
-          ) : (
-            <EmptyState 
-              icon={MessageSquare}
-              title={`No check-ins for ${selectedQuarter}`}
-              description="Your manager's comments will appear here after quarterly reviews."
-            />
-          )}
-        </TabsContent>
-      </Tabs>
+          </div>
+        ) : (
+          <div className="flex flex-col items-center justify-center py-20 text-center">
+            <div className="w-14 h-14 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center mb-4">
+              <MessageSquare className="w-7 h-7 text-slate-300 dark:text-slate-600" />
+            </div>
+            <h3 className="font-semibold text-slate-700 dark:text-slate-300 mb-1">
+              No check-ins for {selectedQuarter}
+            </h3>
+            <p className="text-sm text-slate-400 max-w-xs">
+              Your manager's feedback will appear here after your quarterly review.
+            </p>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

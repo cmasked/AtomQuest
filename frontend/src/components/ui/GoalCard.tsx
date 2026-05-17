@@ -1,6 +1,5 @@
 import { StatusBadge } from './StatusBadge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { CornerDownLeft, Lock, Pencil, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -48,14 +47,13 @@ export function GoalCard({ goal, onEdit, onDelete, showActions = true }: GoalCar
 
   return (
     <Card className={cn(
-      "transition-all duration-200 bg-white",
-      "border border-slate-200 shadow-sm hover:shadow-md",
-      "hover:-translate-y-0.5",
-      isReturned  ? "border-l-[3px] border-l-red-500" : "",
-      isSubmitted ? "border-l-[3px] border-l-amber-500" : "",
-      isApproved  ? "border-l-[3px] border-l-green-500" : "",
-      isDraft     ? "border-l-[3px] border-l-slate-300" : "",
-      "dark:bg-slate-900 dark:border-slate-700 dark:hover:border-slate-600"
+      "bg-white dark:bg-slate-900 transition-all duration-200",
+      "border border-slate-200 dark:border-slate-700",
+      "shadow-sm hover:shadow-md hover:-translate-y-0.5",
+      isReturned  && "border-l-4 border-l-red-500",
+      isSubmitted && "border-l-4 border-l-amber-500",
+      isApproved  && "border-l-4 border-l-green-500",
+      isDraft     && "border-l-4 border-l-slate-300 dark:border-l-slate-600"
     )}>
       <CardHeader className="flex flex-row items-start justify-between pb-2 space-y-0">
         <CardTitle className="text-base font-semibold text-slate-900 dark:text-white flex items-center gap-2">
@@ -90,33 +88,57 @@ export function GoalCard({ goal, onEdit, onDelete, showActions = true }: GoalCar
       </CardHeader>
       <CardContent>
         {isReturned && (
-          <div className="mb-4 p-3 bg-red-50 text-red-800 text-sm rounded-md border border-red-100 flex items-start gap-2">
-            <CornerDownLeft className="w-4 h-4 mt-0.5 text-red-600" />
-            <div>
-              <span className="font-semibold block mb-1">Returned by manager</span>
-              <span className="opacity-90">Please revise your goal based on feedback and resubmit.</span>
+          <div className="mb-4 p-3.5 rounded-lg border bg-red-50 border-red-100 dark:bg-red-950/40 dark:border-red-900/50 flex items-start gap-2.5">
+            <CornerDownLeft className="w-4 h-4 text-red-500 shrink-0 mt-0.5" />
+            <div className="text-sm text-red-800 dark:text-red-300">
+              <span className="font-semibold block mb-0.5">Returned for revision</span>
+              <span className="opacity-80">
+                Please revise your goal based on feedback and resubmit.
+              </span>
             </div>
           </div>
         )}
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4 text-sm">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
           <div>
-            <span className="block text-[10px] font-semibold uppercase tracking-widest text-slate-400 mb-1 dark:text-slate-600">Thrust Area</span>
-            <Badge variant="secondary" className="font-normal">{goal.thrustArea}</Badge>
+            <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400 dark:text-slate-600 mb-1.5">
+              Thrust Area
+            </p>
+            <div>
+              <span className="inline-flex px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-xs font-medium text-slate-700 dark:text-slate-300">
+                {goal.thrustArea}
+              </span>
+            </div>
           </div>
           <div>
-            <span className="block text-[10px] font-semibold uppercase tracking-widest text-slate-400 mb-1 dark:text-slate-600">Type</span>
-            <Badge variant="outline" className="font-normal text-slate-600 dark:text-slate-300">{uomLabel()}</Badge>
+            <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400 dark:text-slate-600 mb-1.5">
+              Type
+            </p>
+            <div>
+              <span className="inline-flex px-2 py-0.5 rounded-md border border-slate-200 dark:border-slate-700 text-xs font-medium text-slate-600 dark:text-slate-400">
+                {uomLabel()}
+              </span>
+            </div>
           </div>
           <div>
-            <span className="block text-[10px] font-semibold uppercase tracking-widest text-slate-400 mb-1 dark:text-slate-600">Target</span>
-            <span className="font-semibold text-slate-800 text-sm dark:text-slate-200">
-              {goal.uomType === 'TIMELINE' && goal.targetDate ? formatDate(goal.targetDate) : (goal.targetValue ?? '—')}
-            </span>
+            <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400 dark:text-slate-600 mb-1.5">
+              Target
+            </p>
+            <div>
+              <span className="text-sm font-bold text-slate-800 dark:text-slate-200">
+                {goal.uomType === 'TIMELINE' && goal.targetDate ? formatDate(goal.targetDate) : (goal.targetValue ?? '—')}
+              </span>
+            </div>
           </div>
           <div>
-            <span className="block text-[10px] font-semibold uppercase tracking-widest text-slate-400 mb-1 dark:text-slate-600">Weightage</span>
-            <span className="font-bold text-brand-orange text-sm dark:text-brand-orange">{goal.weightage}%</span>
+            <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400 dark:text-slate-600 mb-1.5">
+              Weightage
+            </p>
+            <div>
+              <span className="text-sm font-bold text-brand-orange">
+                {goal.weightage}%
+              </span>
+            </div>
           </div>
         </div>
 

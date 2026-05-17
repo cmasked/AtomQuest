@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import api from '@/lib/axios';
 import { PageHeader } from '@/components/shared/PageHeader';
 import { Card } from '@/components/ui/card';
-import { BarChart, Bar, XAxis, YAxis, Tooltip as RechartsTooltip, ResponsiveContainer, CartesianGrid, Legend, ScatterChart, Scatter, ZAxis } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, Tooltip as RechartsTooltip, ResponsiveContainer, CartesianGrid, Legend, ScatterChart, Scatter, ZAxis, Cell } from 'recharts';
 
 export default function AnalyticsDashboardPage() {
   const [data, setData] = useState<any>(null);
@@ -95,7 +95,7 @@ export default function AnalyticsDashboardPage() {
               <XAxis type="category" dataKey="quarter" name="Quarter" allowDuplicatedCategory={false} />
               <YAxis type="category" dataKey="department" name="Department" allowDuplicatedCategory={false} />
               <ZAxis type="number" dataKey="completionRate" range={[50, 400]} name="Completion Rate" />
-              <RechartsTooltip cursor={{ strokeDasharray: '3 3' }} formatter={(val: any, name: string) => name === 'Completion Rate' ? val + '%' : val} />
+              <RechartsTooltip cursor={{ strokeDasharray: '3 3' }} formatter={(val: any, name: any) => name === 'Completion Rate' ? val + '%' : val} />
               <Scatter name="Completion" data={heatmap} fill="#22C55E">
                 {heatmap.map((entry: any, index: number) => (
                   <Cell key={`cell-${index}`} fill={entry.completionRate < 50 ? '#EF4444' : entry.completionRate < 80 ? '#F59E0B' : '#22C55E'} />

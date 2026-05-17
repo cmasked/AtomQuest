@@ -2,16 +2,13 @@ import { useEffect, useState, useMemo } from 'react';
 import { getMyAchievementSummary, updateAchievement } from '@/api/achievements';
 import { useCycleStore } from '@/store/cycleStore';
 import { PageHeader } from '@/components/shared/PageHeader';
-import { StatusBadge } from '@/components/ui/StatusBadge';
 import { ScoreRing } from '@/components/ui/ScoreRing';
 import { EmptyState } from '@/components/shared/EmptyState';
-import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { AlertCircle, Loader2, MessageSquare } from 'lucide-react';
+import { AlertCircle, Loader2, MessageSquare, Lock, TrendingUp, CheckCircle2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { format } from 'date-fns';
+import { cn } from '@/lib/utils';
 
 export default function MyProgressPage() {
   const { activeCycle } = useCycleStore();
@@ -142,36 +139,67 @@ export default function MyProgressPage() {
     <div className="space-y-6 pb-12">
       <PageHeader title={`My Progress — ${activeCycle?.name}`} />
 
-      <Tabs value={selectedQuarter} onValueChange={setSelectedQuarter} className="w-full">
-        <TabsList className="mb-6 bg-transparent border-b border-border w-full justify-start rounded-none p-0 h-auto">
-          {['Q1', 'Q2', 'Q3', 'Q4'].map(q => (
-            <TabsTrigger 
-              key={q} 
-              value={q}
-              className="rounded-none border-b-2 border-transparent data-[state=active]:border-brand-orange data-[state=active]:text-brand-orange data-[state=active]:bg-transparent px-6 py-3"
-            >
-              {q}
-            </TabsTrigger>
-          ))}
-        </TabsList>
+      <div className="flex border-b border-slate-200 dark:border-slate-800 mb-6">
+        {['Q1', 'Q2', 'Q3', 'Q4'].map(q => (
+          <button
+            key={q}
+            onClick={() => setSelectedQuarter(q)}
+            className={cn(
+              "px-5 py-3 text-sm font-medium border-b-2 -mb-px transition-colors",
+              selectedQuarter === q
+                ? "border-brand-orange text-brand-orange"
+                : "border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300"
+            )}
+          >
+            {q}
+          </button>
+        ))}
+      </div>
 
-        <TabsContent value={selectedQuarter} className="space-y-6 outline-none mt-0">
-          
-          {/* Stats Row */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <Card className="p-4 shadow-sm flex flex-col justify-center">
-              <div className="text-sm text-slate-500 mb-1">Goals Approved</div>
-              <div className="text-2xl font-semibold text-brand-navy">{stats.approved}</div>
-            </Card>
-            <Card className="p-4 shadow-sm flex flex-col justify-center">
-              <div className="text-sm text-slate-500 mb-1">Check-ins Done</div>
-              <div className="text-2xl font-semibold text-brand-navy">{stats.checkins}</div>
-            </Card>
-            <Card className="p-4 shadow-sm flex flex-col justify-center border-l-4 border-l-brand-orange">
-              <div className="text-sm text-slate-500 mb-1">Avg Score (Weighted)</div>
-              <div className="text-2xl font-semibold text-brand-navy">{stats.avgScore}%</div>
-            </Card>
+      <div className="space-y-6 outline-none mt-0">
+        
+        {/* Stats Row */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-5 shadow-sm">
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-[10px] font-semibold uppercase tracking-widest text-slate-400 dark:text-slate-600">
+                Goals Approved
+              </span>
+              <div className="w-9 h-9 rounded-lg flex items-center justify-center bg-blue-100 dark:bg-blue-900/40">
+                <CheckCircle2 className="w-4.5 h-4.5 text-blue-600 dark:text-blue-400" />
+              </div>
+            </div>
+            <div className="text-3xl font-bold text-slate-900 dark:text-white">
+              {stats.approved}
+            </div>
           </div>
+          <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-5 shadow-sm">
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-[10px] font-semibold uppercase tracking-widest text-slate-400 dark:text-slate-600">
+                Check-ins Done
+              </span>
+              <div className="w-9 h-9 rounded-lg flex items-center justify-center bg-green-100 dark:bg-green-900/40">
+                <MessageSquare className="w-4.5 h-4.5 text-green-600 dark:text-green-400" />
+              </div>
+            </div>
+            <div className="text-3xl font-bold text-slate-900 dark:text-white">
+              {stats.checkins}
+            </div>
+          </div>
+          <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-5 shadow-sm">
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-[10px] font-semibold uppercase tracking-widest text-slate-400 dark:text-slate-600">
+                Avg Score
+              </span>
+              <div className="w-9 h-9 rounded-lg flex items-center justify-center bg-brand-orange/10">
+                <TrendingUp className="w-4.5 h-4.5 text-brand-orange" />
+              </div>
+            </div>
+            <div className="text-3xl font-bold text-slate-900 dark:text-white">
+              {stats.avgScore}%
+            </div>
+          </div>
+        </div>
 
           {!isWindowOpen && (
             <div className="p-3 bg-slate-50 border border-slate-200 text-slate-600 rounded-lg text-sm flex items-center gap-2">
@@ -192,159 +220,144 @@ export default function MyProgressPage() {
                 : goal.targetValue;
 
               return (
-                <Card key={goal.id} className="overflow-hidden shadow-sm">
+                <div key={goal.id} className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-sm p-6 space-y-5 hover:shadow-md transition-all duration-200">
                   {/* Header */}
-                  <div className="bg-slate-50/80 px-5 py-4 border-b border-border flex justify-between items-start gap-4">
+                  <div className="flex items-start justify-between gap-4">
                     <div>
-                      <h3 className="font-medium text-brand-navy text-lg">{goal.title}</h3>
-                      <div className="flex gap-3 mt-2 text-sm text-slate-500">
-                        <span>Weightage: <span className="font-semibold text-slate-700">{goal.weightage}%</span></span>
-                        <span>•</span>
-                        <span>{goal.uomType.replace('_', ' ')}</span>
+                      <div className="flex items-center gap-2 mb-1">
+                        <Lock className="w-3.5 h-3.5 text-green-500" />
+                        <span className="text-[10px] font-semibold uppercase tracking-widest text-slate-400 dark:text-slate-600">
+                          {goal.thrustArea}
+                        </span>
                       </div>
+                      <h3 className="font-semibold text-slate-900 dark:text-white">
+                        {goal.title}
+                      </h3>
                     </div>
-                    <StatusBadge status={inputData.status} className="shrink-0" />
+                    <div className="flex items-center gap-3 shrink-0">
+                      <span className="text-sm font-bold text-brand-orange">{goal.weightage}%</span>
+                      <ScoreRing score={ach.computedScore ?? null} size="md" />
+                    </div>
                   </div>
-
-                  {/* Body */}
-                  <div className="p-5 flex flex-col md:flex-row gap-8">
-                    
-                    {/* Left: Target & Actual Input */}
-                    <div className="flex-1 space-y-6">
-                      <div className="grid grid-cols-2 gap-6">
-                        <div>
-                          <label className="text-xs text-slate-500 uppercase tracking-wider font-medium mb-1.5 block">Target</label>
-                          <div className="text-lg font-medium bg-slate-50 px-3 py-2 rounded border border-slate-100">
-                            {targetDisplay}
-                          </div>
-                        </div>
-                        
-                        <div>
-                          <label className="text-xs text-slate-500 uppercase tracking-wider font-medium mb-1.5 block">Actual</label>
-                          {isWindowOpen ? (
-                            isTimeline ? (
-                              <Input 
-                                type="date" 
-                                value={inputData.actualDate} 
-                                onChange={e => setInputs(prev => {
-                                  const goalInputs = prev[goal.id] || {};
-                                  const quarterInputs = goalInputs[selectedQuarter] || { actualValue: '', actualDate: '', status: 'NOT_STARTED' };
-                                  return {
-                                    ...prev,
-                                    [goal.id]: {
-                                      ...goalInputs,
-                                      [selectedQuarter]: { ...quarterInputs, actualDate: e.target.value }
-                                    }
-                                  };
-                                })}
-                              />
-                            ) : (
-                              <Input 
-                                type="number" 
-                                placeholder="Enter value" 
-                                value={inputData.actualValue} 
-                                onChange={e => setInputs(prev => {
-                                  const goalInputs = prev[goal.id] || {};
-                                  const quarterInputs = goalInputs[selectedQuarter] || { actualValue: '', actualDate: '', status: 'NOT_STARTED' };
-                                  return {
-                                    ...prev,
-                                    [goal.id]: {
-                                      ...goalInputs,
-                                      [selectedQuarter]: { ...quarterInputs, actualValue: e.target.value }
-                                    }
-                                  };
-                                })}
-                              />
-                            )
-                          ) : (
-                            <div className="text-lg font-medium px-3 py-2">
-                              {ach.actualValue !== null ? 
-                                (isTimeline ? (inputData.actualDate ? format(new Date(inputData.actualDate), 'dd MMM yyyy') : '—') : ach.actualValue) 
-                                : '—'}
-                            </div>
-                          )}
-                        </div>
-                      </div>
-
-                      {isWindowOpen && (
-                        <div>
-                          <label className="text-xs text-slate-500 uppercase tracking-wider font-medium mb-2 block">Progress Status</label>
-                          <div className="flex bg-slate-100 p-1 rounded-lg w-fit">
-                            {['NOT_STARTED', 'ON_TRACK', 'AT_RISK', 'COMPLETED'].map(st => (
-                              <button
-                                key={st}
-                                onClick={() => setInputs(prev => {
-                                  const goalInputs = prev[goal.id] || {};
-                                  const quarterInputs = goalInputs[selectedQuarter] || { actualValue: '', actualDate: '', status: 'NOT_STARTED' };
-                                  return {
-                                    ...prev,
-                                    [goal.id]: {
-                                      ...goalInputs,
-                                      [selectedQuarter]: { ...quarterInputs, status: st }
-                                    }
-                                  };
-                                })}
-                                className={`px-4 py-1.5 text-xs font-medium rounded-md transition-colors ${
-                                  inputData.status === st 
-                                    ? 'bg-white shadow-sm text-brand-orange' 
-                                    : 'text-slate-600 hover:text-slate-900'
-                                }`}
-                              >
-                                {st.replace('_', ' ')}
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-
-                      {isWindowOpen && (
-                        <div className="pt-2">
-                          <Button 
-                            onClick={() => handleSave(goal.id, isTimeline)}
-                            disabled={savingId === goal.id}
-                            className="bg-brand-orange hover:bg-brand-orange/90 text-white"
-                          >
-                            {savingId === goal.id ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
-                            Save Achievement
-                          </Button>
-                        </div>
+                  
+                  {/* Planned vs Actual row */}
+                  <div className="grid grid-cols-2 gap-4 p-4 rounded-lg bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700/50">
+                    <div>
+                      <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400 dark:text-slate-600 mb-1">Target</p>
+                      <p className="text-base font-bold text-slate-800 dark:text-slate-200">
+                        {targetDisplay ?? '—'}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400 dark:text-slate-600 mb-1">Actual</p>
+                      {isWindowOpen ? (
+                        isTimeline ? (
+                          <input 
+                            type="date"
+                            className="w-full text-base font-bold bg-transparent border-b-2 border-brand-orange/30 focus:border-brand-orange outline-none text-slate-800 dark:text-slate-200 pb-0.5"
+                            value={inputData.actualDate}
+                            onChange={e => setInputs(prev => {
+                              const goalInputs = prev[goal.id] || {};
+                              const quarterInputs = goalInputs[selectedQuarter] || { actualValue: '', actualDate: '', status: 'NOT_STARTED' };
+                              return {
+                                ...prev,
+                                [goal.id]: {
+                                  ...goalInputs,
+                                  [selectedQuarter]: { ...quarterInputs, actualDate: e.target.value }
+                                }
+                              };
+                            })}
+                          />
+                        ) : (
+                          <input 
+                            type="number"
+                            className="w-full text-base font-bold bg-transparent border-b-2 border-brand-orange/30 focus:border-brand-orange outline-none text-slate-800 dark:text-slate-200 pb-0.5"
+                            placeholder="Enter value..."
+                            value={inputData.actualValue}
+                            onChange={e => setInputs(prev => {
+                              const goalInputs = prev[goal.id] || {};
+                              const quarterInputs = goalInputs[selectedQuarter] || { actualValue: '', actualDate: '', status: 'NOT_STARTED' };
+                              return {
+                                ...prev,
+                                [goal.id]: {
+                                  ...goalInputs,
+                                  [selectedQuarter]: { ...quarterInputs, actualValue: e.target.value }
+                                }
+                              };
+                            })}
+                          />
+                        )
+                      ) : (
+                        <p className="text-base font-bold text-slate-800 dark:text-slate-200">
+                          {ach.actualValue !== null ? 
+                            (isTimeline ? (inputData.actualDate ? format(new Date(inputData.actualDate), 'dd MMM yyyy') : '—') : ach.actualValue) 
+                            : '—'}
+                        </p>
                       )}
                     </div>
-
-                    {/* Right: Score Ring */}
-                    <div className="flex flex-col items-center justify-center shrink-0 w-32 md:border-l md:border-border md:pl-8">
-                      <ScoreRing score={ach.computedScore} size="lg" />
-                      <span className="text-xs text-slate-500 mt-3 font-medium uppercase tracking-wider">Computed Score</span>
-                    </div>
-
                   </div>
-
-                  {/* Manager Comment Section */}
-                  <div className="px-5 py-4 bg-slate-50/50 border-t border-border">
-                    {ach.managerComment ? (
-                      <div className="flex gap-3 text-sm">
-                        <MessageSquare className="w-5 h-5 text-blue-500 shrink-0 mt-0.5" />
-                        <div>
-                          <div className="font-medium text-slate-700 mb-1">
-                            Manager note · {ach.managerName || 'Manager'}
-                          </div>
-                          <div className="text-slate-600 italic">
-                            "{ach.managerComment}"
-                          </div>
+                  
+                  {/* Status selector */}
+                  {isWindowOpen && (
+                    <div className="flex flex-wrap gap-2">
+                      {['NOT_STARTED', 'ON_TRACK', 'COMPLETED'].map(s => (
+                        <button key={s}
+                          onClick={() => setInputs(prev => {
+                            const goalInputs = prev[goal.id] || {};
+                            const quarterInputs = goalInputs[selectedQuarter] || { actualValue: '', actualDate: '', status: 'NOT_STARTED' };
+                            return {
+                              ...prev,
+                              [goal.id]: {
+                                ...goalInputs,
+                                [selectedQuarter]: { ...quarterInputs, status: s }
+                              }
+                            };
+                          })}
+                          className={cn(
+                            "flex-1 py-2 px-3 rounded-lg text-xs font-semibold border transition-all",
+                            inputData.status === s
+                              ? s === 'NOT_STARTED' ? "bg-slate-800 text-white border-slate-800 dark:bg-slate-200 dark:text-slate-900 dark:border-slate-200"
+                                : s === 'ON_TRACK' ? "bg-green-600 text-white border-green-600"
+                                : "bg-blue-600 text-white border-blue-600"
+                              : "bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400"
+                          )}>
+                          {s.replace('_', ' ')}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                  
+                  {/* Manager check-in comment */}
+                  {ach.managerComment && (
+                    <div className="p-4 rounded-lg border border-blue-100 dark:border-blue-900/30 bg-blue-50 dark:bg-blue-950/30 flex gap-3">
+                      <div className="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/50 flex items-center justify-center shrink-0">
+                        <MessageSquare className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                      </div>
+                      <div>
+                        <div className="text-xs font-semibold text-blue-800 dark:text-blue-300 mb-1">
+                          Manager note — {selectedQuarter}
+                        </div>
+                        <div className="text-sm text-blue-700 dark:text-blue-400 leading-relaxed">
+                          {ach.managerComment}
                         </div>
                       </div>
-                    ) : (
-                      <div className="text-sm text-slate-400 italic">
-                        No manager check-in yet for this quarter
-                      </div>
-                    )}
-                  </div>
-                </Card>
+                    </div>
+                  )}
+                  
+                  {isWindowOpen && (
+                    <Button 
+                      onClick={() => handleSave(goal.id, isTimeline)}
+                      disabled={savingId === goal.id}
+                      className="w-full bg-brand-orange hover:bg-orange-600 text-white shadow-sm shadow-orange-200 dark:shadow-none font-semibold gap-2">
+                      {savingId === goal.id ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
+                      Save Achievement
+                    </Button>
+                  )}
+                </div>
               );
             })}
           </div>
-        </TabsContent>
-      </Tabs>
+        </div>
     </div>
   );
 }
