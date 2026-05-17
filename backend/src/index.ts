@@ -13,16 +13,18 @@ const PORT = process.env.PORT || 3000;
 // ─── Middleware ──────────────────────────────────────────────
 app.use(cors({
   origin: (origin, callback) => {
-    // Allow requests from any localhost port (dev) or the production Vercel URL
-    const allowedPatterns = [
-      /^http:\/\/localhost:\d+$/,
-      /^https:\/\/atomquest\.vercel\.app$/,
-    ];
-    if (!origin || allowedPatterns.some(p => p.test(origin))) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
+    if (!origin) return callback(null, true);
+    
+    // Always allow localhost
+    if (/^http:\/\/localhost:\d+$/.test(origin)) return callback(null, true);
+    
+    // Allow the specific frontend URL from environment variable
+    if (process.env.FRONTEND_URL && origin === process.env.FRONTEND_URL) return callback(null, true);
+    
+    // Allow any vercel deployment (bulletproof for hackathons)
+    if (origin.endsWith('.vercel.app')) return callback(null, true);
+    
+    callback(new Error(`Origin ${origin} not allowed by CORS`));
   },
   credentials: true
 }));
