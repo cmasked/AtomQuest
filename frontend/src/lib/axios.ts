@@ -21,7 +21,10 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response && error.response.status === 401) {
+    const requestUrl = error.config?.url || '';
+    const isLoginRequest = requestUrl.includes('/auth/login');
+
+    if (error.response && error.response.status === 401 && !isLoginRequest) {
       localStorage.removeItem('auth_token');
       localStorage.removeItem('auth-storage'); // Zustand persist key
       toast.error('Session expired. Please log in again.');
